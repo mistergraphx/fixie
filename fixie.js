@@ -1,7 +1,7 @@
 /*
  * Fixie.js
  *
- * v1.1.1
+ * v1.2.0
  *
  * forked from https://github.com/ryhan/fixie
  * original Author Ryhan Hassan
@@ -12,259 +12,149 @@
  * Hope you find it useful :)
  */
 var fixie = (function () {
+    let selector;
+    let fixie_wordlibrary = ["8-bit", "ethical", "reprehenderit", "delectus", "non", "latte", "fixie", "mollit", "authentic", "1982", "moon", "helvetica", "dreamcatcher", "esse", "vinyl", "nulla", "Carles", "bushwick", "bronson", "clothesline", "fin", "frado", "jug", "kale", "organic", "local", "fresh", "tassel", "liberal", "art", "the", "of", "bennie", "chowder", "daisy", "gluten", "hog", "capitalism", "is", "vegan", "ut", "farm-to-table", "etsy", "incididunt", "sunt", "twee", "yr", "before", "gentrify", "whatever", "wes", "Anderson", "chillwave", "dubstep", "sriracha", "voluptate", "pour-over", "esse", "trust-fund", "Pinterest", "Instagram", "DSLR", "vintage", "dumpster", "totally", "selvage", "gluten-free", "brooklyn", "placeat", "delectus", "sint", "magna", "brony", "pony", "party", "beer", "shot", "narwhal", "salvia", "letterpress", "art", "party", "street-art", "seitan", "anime", "wayfarers", "non-ethical", "viral", "iphone", "anim", "polaroid", "gastropub", "city", "classy", "original", "brew"];
+    let imagePlaceHolder = "https://fakeimg.pl/${w}x${h}/?text=${text}";
 
-    var selector;
-    var fixie_wordlibrary = ["8-bit", "ethical", "reprehenderit", "delectus", "non", "latte", "fixie", "mollit", "authentic", "1982", "moon", "helvetica", "dreamcatcher", "esse", "vinyl", "nulla", "Carles", "bushwick", "bronson", "clothesline", "fin", "frado", "jug", "kale", "organic", "local", "fresh", "tassel", "liberal", "art", "the", "of", "bennie", "chowder", "daisy", "gluten", "hog", "capitalism", "is", "vegan", "ut", "farm-to-table", "etsy", "incididunt", "sunt", "twee", "yr", "before", "gentrify", "whatever", "wes", "Anderson", "chillwave", "dubstep", "sriracha", "voluptate", "pour-over", "esse", "trust-fund", "Pinterest", "Instagram", "DSLR", "vintage", "dumpster", "totally", "selvage", "gluten-free", "brooklyn", "placeat", "delectus", "sint", "magna", "brony", "pony", "party", "beer", "shot", "narwhal", "salvia", "letterpress", "art", "party", "street-art", "seitan", "anime", "wayfarers", "non-ethical", "viral", "iphone", "anim", "polaroid", "gastropub", "city", "classy", "original", "brew"];
-    var imagePlaceHolder = "https://fakeimg.pl/${w}x${h}/?text=${text}";
-
-    if (typeof document.getElementsByClassName !== "function") {
-        document.getElementsByClassName = function (cl) {
-            var retnode = [];
-            var myclass = new RegExp("\\b" + cl + "\\b");
-            var elem = this.getElementsByTagName("*");
-            for (var i = 0; i < elem.length; i++) {
-                var classes = elem[i].className;
-                if (myclass.test(classes)) retnode.push(elem[i]);
-            }
-            return retnode;
-        };
-    }
-    /*
-     * Spec
-     * Here are some functions you might find useful
-     *
-     * fixie_handler(element)
-     * fixie_handle_elements(elements)
-     *
-     * fixie_fetchWord();
-     * fixie_fetchPhrase();
-     * fixie_fetchSentence();
-     * fixie_fetchParagraph();
-     * fixie_fetchParagraphs();
-     *
-     */
-
-
-    /*
-     * fixie_handler(element)
-     *
-     * Takes in an element and adds filler content.
-     * Returns false if tag is unrecognized.
-     */
-    function fixie_handler(element) {
-        if (!/^\s*$/.test(element.innerHTML)) {
-            var childs = element.children;
-            if (childs.length) {
-                for (var fixie_i = 0; fixie_i < childs.length; fixie_i++) {
-                    fixie_handler(childs[fixie_i]);
-                }
-            }
-            return;
-        }
-        switch (element.nodeName.toLowerCase()) {
-        case "b":
-        case "em":
-        case "strong":
-        case "button":
-        case "label":
-        case "th":
-        case "td":
-        case "title":
-        case "tr":
-            element.innerHTML = fixie_fetchWord();
-            break;
-
-        case "header":
-        case "cite":
-        case "caption":
-        case "mark":
-        case "q":
-        case "s":
-        case "u":
-        case "small":
-        // case "span":
-        case "code":
-        case "pre":
-        case "li":
-        case "dt":
-        case "h1":
-        case "h2":
-        case "h3":
-        case "h4":
-        case "h5":
-        case "h6":
-            element.innerHTML = fixie_fetchPhrase();
-            break;
-
-        case "footer":
-        case "aside":
-        case "summary":
-        case "blockquote":
-        case "p":
-            element.innerHTML = fixie_fetchParagraph();
-            break;
-
-        case "article":
-        case "section":
-            element.innerHTML = fixie_fetchParagraphs()
-            break;
-
-        // Special cases
-        case "a":
-            var href = element.getAttribute("href") || element.href;
-            if (href === "" || href === null) {
-                element.href = "#";
-            }
-            element.innerHTML = "www." + fixie_fetchWord() + fixie_capitalize(fixie_fetchWord()) + ".com";
-            break;
-
-        case "img":
-            var src = element.getAttribute("src") || element.src;
-            var temp = element.getAttribute("fixie-temp-img");
-            if (src === "" || src === null || temp === true || temp === "true") {
-                var width = element.getAttribute("width") || element.width || (element.width = 250);
-                var height = element.getAttribute("height") || element.height || (element.height = 100);
-                var title = element.getAttribute("title") || "";
-                element.src = imagePlaceHolder.replace("${w}", width).replace("${h}", height).replace("${text}", title);
-                element.setAttribute("fixie-temp-img", true);
-            }
-            break;
-
-        case "ol":
-        case "ul":
-            element.innerHTML = fixie_fetchList();
-            break;
-
-        case "dl":
-            element.innerHTML = fixie_fetchDefinitionList();
-            break;
-
-        case "hr":
-        case "div":
-        case "input":
-            break;
-
-        case "span":
-        case "i":
-            var css = element.getAttribute("class");
-            var patt = /(icn+|icon+)/.test(css);
-            if (patt) {
-                break;
-            }
-
-
-        default:
-            element.innerHTML = fixie_fetchSentence();
-        }
-    }
-
-    // Handle an array of elements
-    function fixie_handle_elements(elements) {
-        for (var i = 0; i < elements.length; i++) {
-            fixie_handler(elements[i]);
-        }
-    }
-
-
-    // Generator functions
-    function fixie_capitalize(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    function fixie_fetchWord() {
-        return fixie_wordlibrary[constrain(0, fixie_wordlibrary.length - 1 )];
-    }
-
-    function constrain(min, max) {
-         return Math.round(Math.random() * (max - min) + min);
-    }
-
-    function fixie_fetch(min, max, func, join) {
-        join || (join = " ");
-        var fixie_length = constrain(min, max);
-        var result = [];
-        for (var fixie_i = 0; fixie_i < fixie_length; fixie_i++) {
-            result.push(func());
-        }
-        return fixie_capitalize(result.join(join));
-    }
-
-    function fetch_suroundWithTag(min, max, func, tagName) {
-        var startTag = "<" + tagName + ">";
-        var endTag = "</" + tagName + ">";
-        return startTag + fixie_fetch(min, max, func, endTag + startTag) + endTag;
-    }
-
-    function fixie_fetchPhrase() {
-        return fixie_fetch(3, 5, fixie_fetchWord);
-    }
-
-    function fixie_fetchSentence() {
-        return fixie_fetch(4, 9, fixie_fetchWord) + ".";
-    }
-
-    function fixie_fetchParagraph() {
-        return fixie_fetch(3, 7, fixie_fetchSentence);
-    }
-
-    function fixie_fetchParagraphs() {
-        return fetch_suroundWithTag(3, 7, fixie_fetchParagraph, "p");
-    }
-
-    function fixie_fetchList() {
-        return fetch_suroundWithTag(4, 8, fixie_fetchPhrase, "li");
-    }
-
-    function fixie_fetchDefinitionList() {
-        var html = ""
-        for (var i = 0, l = constrain(3,5); i < l; i++) {
-            html += fetch_suroundWithTag(1, 1, fixie_fetchPhrase, "dt") + fetch_suroundWithTag(1, 1, fixie_fetchPhrase, "dd");
+    const fetchWord = () => fixie_wordlibrary[constrain(0, fixie_wordlibrary.length - 1)];
+    const fetchPhrase = () => fetch(3, 5, fetchWord);
+    const fetchSentence = () => fetch(4, 9, fetchWord) + ".";
+    const fetchParagraph = () => fetch(3, 7, fetchSentence);
+    const fetchParagraphs = () => surroundWithTag(3, 7, fetchParagraph, "p");
+    const fetchList = () => surroundWithTag(4, 8, fetchPhrase, "li");
+    const fetchDefinitionList = () => {
+        let html = "";
+        for (let i = 0, l = constrain(3, 5); i < l; i++) {
+            html += surroundWithTag(1, 1, fetchPhrase, "dt") + surroundWithTag(1, 1, fetchPhrase, "dd");
         }
         return html;
+    };
+
+    const constrain = (min, max) => Math.round(Math.random() * (max - min) + min);
+
+    const fetch = (min, max, func, join = " ") => {
+        const length = constrain(min, max);
+        const result = Array.from({ length }, func).join(join);
+        return capitalize(result);
+    };
+
+    const surroundWithTag = (min, max, func, tagName) => {
+        const content = fetch(min, max, func, `</${tagName}><${tagName}>`);
+        return `<${tagName}>${content}</${tagName}>`;
+    };
+
+    const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+
+    function fixie_handler(element) {
+        if (!/^\s*$/.test(element.innerHTML)) {
+            Array.from(element.children).forEach(fixie_handler);
+            return;
+        }
+
+        const handlers = {
+            b: fetchWord,
+            em: fetchWord,
+            strong: fetchWord,
+            button: fetchWord,
+            label: fetchWord,
+            th: fetchWord,
+            td: fetchWord,
+            title: fetchWord,
+            tr: fetchWord,
+            header: fetchPhrase,
+            cite: fetchPhrase,
+            caption: fetchPhrase,
+            mark: fetchPhrase,
+            q: fetchPhrase,
+            s: fetchPhrase,
+            u: fetchPhrase,
+            small: fetchPhrase,
+            code: fetchPhrase,
+            pre: fetchPhrase,
+            li: fetchPhrase,
+            dt: fetchPhrase,
+            h1: fetchPhrase,
+            h2: fetchPhrase,
+            h3: fetchPhrase,
+            h4: fetchPhrase,
+            h5: fetchPhrase,
+            h6: fetchPhrase,
+            footer: fetchParagraph,
+            aside: fetchParagraph,
+            summary: fetchParagraph,
+            blockquote: fetchParagraph,
+            p: fetchParagraph,
+            article: fetchParagraphs,
+            section: fetchParagraphs,
+            a: (el) => {
+                const href = el.getAttribute("href") || el.href || "#";
+                el.href = href;
+                return el.innerHTML = `www.${fetchWord()}${capitalize(fetchWord())}.com`;
+
+            },
+            img: (el) => {
+                const src = el.getAttribute("src") || el.src || "";
+                const temp = el.getAttribute("fixie-temp-img") === "true";
+                if (!src || temp) {
+                    const width = el.getAttribute("width") || el.width || 250;
+                    const height = el.getAttribute("height") || el.height || 100;
+                    const title = el.getAttribute("title") || "";
+                    el.src = imagePlaceHolder.replace("${w}", width).replace("${h}", height).replace("${text}", title);
+                    el.setAttribute("fixie-temp-img", true);
+                }
+            },
+            ol: fetchList,
+            ul: fetchList,
+            dl: fetchDefinitionList,
+            hr: ()=> '',
+            div: ()=>'',
+            input: ()=>'',
+            span: (el) => {
+                return  (!/(icn+|icon+)/.test(el.className))? fetchSentence() : ''
+            },
+            i: (el) => {
+                return  (!/(icn+|icon+)/.test(el.className))? fetchSentence() : ''
+            }
+        };
+
+        const handler = handlers[element.nodeName.toLowerCase()] || fetchSentence;
+        element.innerHTML = handler(element);
     }
 
-    // Handle all elements with class "fixie"
-    // fixie_handle_elements(document.getElementsByClassName("fixie"));
+    function fixie_handle_elements(elements) {
+        for (const element of elements) {
+            fixie_handler(element)
+        }
+    }
 
-    // Handle elements which match give css selectors
     function init_str(selector_str) {
-        if (!document.querySelectorAll) {
-            return false;
-        }
         try {
-            fixie_handle_elements(document.querySelectorAll(selector_str));
+            const elements = document.querySelectorAll(selector_str);
+            fixie_handle_elements(elements);
             return true;
-        }
-        catch (err) {
+        } catch (err) {
             return false;
         }
     }
 
     return {
-        // returns true if successful, false otherwise
-        "init": function() {
+        init() {
             if (selector) {
-                init_str(selector);
-            } else {
-                fixie_handle_elements(document.getElementsByClassName("fixie"));
+                return init_str(selector);
             }
+            fixie_handle_elements(document.getElementsByClassName("fixie"));
         },
-        "setImagePlaceholder": function(pl) {
+        setImagePlaceholder(pl) {
             imagePlaceHolder = pl;
             return this;
         },
-        "setSelector": function(sl) {
-            if (typeof sl === "object") {
-                selector = sl.join(",");
-            } else if (sl) {
-                selector = sl;
-            }
+        setSelector(sl) {
+            selector = Array.isArray(sl) ? sl.join(",") : sl;
             return this;
         },
-        "setWordLibrary": function(dic){
+        setWordLibrary(dic) {
             fixie_wordlibrary = dic;
             return this;
         }
     };
-
 })();
