@@ -133,6 +133,7 @@ var fixie = (function () {
             fixie_handle_elements(elements);
             return true;
         } catch (err) {
+            console.log('fixie', err);
             return false;
         }
     }
