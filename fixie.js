@@ -90,7 +90,6 @@ var fixie = (function () {
                 const href = el.getAttribute("href") || el.href || "#";
                 el.href = href;
                 return el.innerHTML = `www.${fetchWord()}${capitalize(fetchWord())}.com`;
-
             },
             img: (el) => {
                 const src = el.getAttribute("src") || el.src || "";
