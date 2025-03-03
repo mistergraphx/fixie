@@ -6,7 +6,7 @@
 	<style>
 		body{
 			font-family: Helvetica, arial, sans-serif;
-			width:800px;
+			max-width:800px;
 			margin:150px auto;
 		}
 		img{
@@ -33,6 +33,7 @@
 	<main>
 		<article>
 			<h1></h1>
+			<p></p>
 			<section>
 				<!-- Ignored elements -->
 				<div></div>
@@ -66,7 +67,7 @@
 	<script src="fixie.js"></script>
 	<script>
 		// Change default dictionary
-		var words= ["Je", "france", "sport", "aurait mieux fait", "super", "voir", "plus", "Mister-graphX"];
+		var words= ["Quand il", "me prends", "dans ces bras", "et que", "parle", "sans compter", "mais j'aurais cru", "en plus"];
 		fixie.setWordLibrary(words).init();
 		// Changes default image service to Picsum
  		fixie.setImagePlaceholder('https://picsum.photos/${w}/${h}/${text}').init();
