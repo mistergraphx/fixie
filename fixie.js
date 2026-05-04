@@ -1,3 +1,4 @@
+// @ts-check
 /*
  * Fixie.js
  *
@@ -12,14 +13,41 @@
  * Hope you find it useful :)
  */
 var fixie = (function () {
+    /** @type {String} */
     let selector;
-    let fixie_wordlibrary = ["8-bit", "ethical", "reprehenderit", "delectus", "non", "latte", "fixie", "mollit", "authentic", "1982", "moon", "helvetica", "dreamcatcher", "esse", "vinyl", "nulla", "Carles", "bushwick", "bronson", "clothesline", "fin", "frado", "jug", "kale", "organic", "local", "fresh", "tassel", "liberal", "art", "the", "of", "bennie", "chowder", "daisy", "gluten", "hog", "capitalism", "is", "vegan", "ut", "farm-to-table", "etsy", "incididunt", "sunt", "twee", "yr", "before", "gentrify", "whatever", "wes", "Anderson", "chillwave", "dubstep", "sriracha", "voluptate", "pour-over", "esse", "trust-fund", "Pinterest", "Instagram", "DSLR", "vintage", "dumpster", "totally", "selvage", "gluten-free", "brooklyn", "placeat", "delectus", "sint", "magna", "brony", "pony", "party", "beer", "shot", "narwhal", "salvia", "letterpress", "art", "party", "street-art", "seitan", "anime", "wayfarers", "non-ethical", "viral", "iphone", "anim", "polaroid", "gastropub", "city", "classy", "original", "brew"];
+    /** @type {Array<string>} */
+    let dictionary = [
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    ]
+
+    let words = dictionary.join().replace(/[^\w]/g,' ').trim().replace(/\s\s+/g,' ').split(' ')
+
+    // let fixie_wordlibrary = ["8-bit", "ethical", "reprehenderit", "delectus", "non", "latte", "fixie", "mollit", "authentic", "1982", "moon", "helvetica", "dreamcatcher", "esse", "vinyl", "nulla", "Carles", "bushwick", "bronson", "clothesline", "fin", "frado", "jug", "kale", "organic", "local", "fresh", "tassel", "liberal", "art", "the", "of", "bennie", "chowder", "daisy", "gluten", "hog", "capitalism", "is", "vegan", "ut", "farm-to-table", "etsy", "incididunt", "sunt", "twee", "yr", "before", "gentrify", "whatever", "wes", "Anderson", "chillwave", "dubstep", "sriracha", "voluptate", "pour-over", "esse", "trust-fund", "Pinterest", "Instagram", "DSLR", "vintage", "dumpster", "totally", "selvage", "gluten-free", "brooklyn", "placeat", "delectus", "sint", "magna", "brony", "pony", "party", "beer", "shot", "narwhal", "salvia", "letterpress", "art", "party", "street-art", "seitan", "anime", "wayfarers", "non-ethical", "viral", "iphone", "anim", "polaroid", "gastropub", "city", "classy", "original", "brew"];
+
     let imagePlaceHolder = "https://fakeimg.pl/${w}x${h}/?text=${text}";
 
-    const fetchWord = () => fixie_wordlibrary[constrain(0, fixie_wordlibrary.length - 1)];
-    const fetchPhrase = () => fetch(3, 5, fetchWord);
-    const fetchSentence = () => fetch(4, 9, fetchWord) + ".";
-    const fetchParagraph = () => fetch(3, 7, fetchSentence);
+    const fetchWords = (num = 5)=>{
+        let output = ''
+        for (let i = 0; i < num; i++) {
+            output += words[Math.floor(Math.random() * words.length)] + ' ';
+        }
+        return output.trim()
+    }
+
+    const fetchSentences = (num = 5)=>{
+        let output = ''
+        for (let i = 0; i < num; i++) {
+            output += dictionary[Math.floor(Math.random() * dictionary.length)];
+        }
+        return output
+    }
+    const fetchPhrase = () => `${capitalize(fetch(3, 5, fetchWords))}.`;
+    // const fetchSentences = () => fetch(4, 9, fetchWords) + ".";
+    const fetchParagraph = () => fetch(3, 7, fetchSentences);
     const fetchParagraphs = () => surroundWithTag(3, 7, fetchParagraph, "p");
     const fetchList = () => surroundWithTag(4, 8, fetchPhrase, "li");
     const fetchDefinitionList = () => {
@@ -29,38 +57,82 @@ var fixie = (function () {
         }
         return html;
     };
-
+    /**
+     * return a random number between 2 values
+     *
+     * @param   {Number}  min   minimal value
+     * @param   {Number}  max   maximum value
+     * @return  {Number}        random number between min and max
+     */
     const constrain = (min, max) => Math.round(Math.random() * (max - min) + min);
-
+    /**
+     * fetch dictionary using generator functions
+     *
+     * @param   {Number}    min   minimal value
+     * @param   {Number}    max   maximum value
+     * @param   {function():string}  func  a text fragment generator function
+     * @param   {String}    join  separator for array.join
+     * @return  {String}            random number between min and max
+     */
     const fetch = (min, max, func, join = " ") => {
-        const length = constrain(min, max);
-        const result = Array.from({ length }, func).join(join);
-        return capitalize(result);
+        const length = constrain(min, max)
+        return Array.from({ length }, func).join(join)
     };
-
+    /**
+     * surround a text fragment with a tag
+     * with min/max
+     *
+     * @param   {Number}    min   minimal value
+     * @param   {Number}    max   maximum value
+     * @param   {function():string}  func  a text fragment generator function
+     * @param   {String|HTMLElement} tagName a valid html tag name
+     * @return  {String}   html element with text fragment
+     */
     const surroundWithTag = (min, max, func, tagName) => {
-        const content = fetch(min, max, func, `</${tagName}><${tagName}>`);
-        return `<${tagName}>${content}</${tagName}>`;
+        const content = fetch(min, max, func, `</${tagName}><${tagName}>`)
+        return `<${tagName}>${content}</${tagName}>`
     };
-
-    const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
-
+    /**
+     * Transform the first character to uppercase and lower the rest
+     * @param {string} string   a text fragment
+     * @returns {string}
+     */
+    const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    /**
+     * apply some typographic rules
+     * @param {string} string
+     * @return  {string}  return a formatted string
+     */
+    const formater = (string)=>{
+        string = string.replace(/(?:\s?)([!\?\:])/gm, '\u202F$1')   // add narow non breaking space before ':'
+        string = string.replace(/(\.{1}[^\s])/gm, '. ')     // add a space after '.' if not present
+        string = string.replace(/(\.{3})/gm, '…')           // change three dots to unicode character
+        string = string.replace(/[']/gm, '’')               // Change to simple quote
+        string = string.replace(/( {2,})/gm, ' ')           // remove multiple spaces
+        return string
+    }
+    /**
+     * handle all DOM elements
+     *
+     * @param   {HTMLElement}  element  a dom elemen
+     *
+     */
     function fixie_handler(element) {
         if (!/^\s*$/.test(element.innerHTML)) {
             Array.from(element.children).forEach(fixie_handler);
-            return;
+            return false;
         }
-
+        /** @type {Object} */
         const handlers = {
-            b: fetchWord,
-            em: fetchWord,
-            strong: fetchWord,
-            button: fetchWord,
-            label: fetchWord,
-            th: fetchWord,
-            td: fetchWord,
-            title: fetchWord,
-            tr: fetchWord,
+            b: fetchWords,
+            em: fetchWords,
+            strong: fetchWords,
+            button: fetchWords,
+            label: fetchWords,
+            th: fetchWords,
+            td: fetchWords,
+            title: fetchWords,
+            tr: fetchWords,
             header: fetchPhrase,
             cite: fetchPhrase,
             caption: fetchPhrase,
@@ -86,20 +158,30 @@ var fixie = (function () {
             p: fetchParagraph,
             article: fetchParagraphs,
             section: fetchParagraphs,
+            /** @param {HTMLLinkElement} el  */
             a: (el) => {
                 const href = el.getAttribute("href") || el.href || "#";
                 el.href = href;
-                return el.innerHTML = `www.${fetchWord()}${capitalize(fetchWord())}.com`;
+                let link = fetchWords(3).replace(/\s/g,'')
+                console.log(link);
+
+                return el.innerHTML = `www.${link}.com`;
             },
+            /** @param {HTMLImageElement} el  */
             img: (el) => {
                 const src = el.getAttribute("src") || el.src || "";
                 const temp = el.getAttribute("fixie-temp-img") === "true";
                 if (!src || temp) {
-                    const width = el.getAttribute("width") || el.width || 250;
-                    const height = el.getAttribute("height") || el.height || 100;
+                    const width = Number(el.getAttribute("width")) || el.width || 250;
+                    const height = Number(el.getAttribute("height")) || el.height || 100;
                     const title = el.getAttribute("title") || "";
-                    el.src = imagePlaceHolder.replace("${w}", width).replace("${h}", height).replace("${text}", title);
+                    el.src = imagePlaceHolder.replace("${w}", `${width}`).replace("${h}", `${height}`);
                     el.setAttribute("fixie-temp-img", true);
+                    console.log({
+                      placeHolder: imagePlaceHolder,
+                      width: width,
+                      height: height
+                    });
                 }
             },
             ol: fetchList,
@@ -108,27 +190,28 @@ var fixie = (function () {
             hr: ()=> '',
             div: ()=>'',
             input: ()=>'',
+            /** @param {HTMLSpanElement} el  */
             span: (el) => {
-                return  (!/(icn+|icon+)/.test(el.className))? fetchSentence() : ''
+                return  (!/(icn+|icon+)/.test(el.className))? fetchSentences() : ''
             },
+            /** @param {HTMLElement} el  */
             i: (el) => {
-                return  (!/(icn+|icon+)/.test(el.className))? fetchSentence() : ''
+                return  (!/(icn+|icon+)/.test(el.className))? fetchSentences() : ''
             }
         };
-
-        const handler = handlers[element.nodeName.toLowerCase()] || fetchSentence;
-        element.innerHTML = handler(element);
+        const handler = handlers[element.nodeName.toLowerCase()] || fetchSentences
+        element.innerHTML = handler(element)
     }
-
+    /** @param {NodeListOf<HTMLElement>} elements */
     function fixie_handle_elements(elements) {
         for (const element of elements) {
-            fixie_handler(element)
+          fixie_handler(element)
         }
     }
-
-    function init_str(selector_str) {
+    /** @param {string} cssSelectors   */
+    function init_str(cssSelectors) {
         try {
-            const elements = document.querySelectorAll(selector_str);
+            const elements = document.querySelectorAll(cssSelectors);
             fixie_handle_elements(elements);
             return true;
         } catch (err) {
@@ -142,18 +225,21 @@ var fixie = (function () {
             if (selector) {
                 return init_str(selector);
             }
-            fixie_handle_elements(document.getElementsByClassName("fixie"));
+            fixie_handle_elements(document.querySelectorAll(".fixie"));
         },
+        /** @param {String} pl placeholder service url */
         setImagePlaceholder(pl) {
             imagePlaceHolder = pl;
             return this;
         },
+        /** @param {Array<String>|string} sl placeholder service url */
         setSelector(sl) {
             selector = Array.isArray(sl) ? sl.join(",") : sl;
             return this;
         },
+        /** @param {Array<String>} dic array of sentences */
         setWordLibrary(dic) {
-            fixie_wordlibrary = dic;
+            dictionary = dic;
             return this;
         }
     };
