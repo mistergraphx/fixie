@@ -18,8 +18,12 @@ var fixie = (function () {
         "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
         "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     ]
-
-    let words = dictionary.join().replace(/[^\w]/g,' ').trim().replace(/\s\s+/g,' ').split(' ')
+    /** @type {Array<String>} */
+    let words = generateWords(dictionary);
+    /** @param {Array<String>} dic */
+    function generateWords(dic) {
+      return dic.join().replace(/[^\w]/g, ' ').trim().replace(/\s\s+/g, ' ').split(' ');
+    }
 
     let imagePlaceHolder = "https://fakeimg.pl/${w}x${h}/?text=${text}";
 
@@ -34,11 +38,11 @@ var fixie = (function () {
     const fetchSentences = (num = 1)=>{
         let output = ''
         for (let i = 0; i < num; i++) {
-            output += dictionary[Math.floor(Math.random() * dictionary.length)];
+            output += dictionary[Math.floor(Math.random() * dictionary.length)]
         }
         return formater(output)
     }
-    const fetchPhrase = () => `${capitalize(fetch(3, 5, fetchWords))}.`;
+    const fetchPhrase = () => `${capitalize(fetchWords(constrain(3,5)))}.`;
     // const fetchSentences = () => fetch(4, 9, fetchWords) + ".";
     const fetchParagraph = () => fetch(1, 1, fetchSentences);
     const fetchParagraphs = () => surroundWithTag(3, 7, fetchParagraph, "p");
@@ -153,12 +157,8 @@ var fixie = (function () {
             section: fetchParagraphs,
             /** @param {HTMLLinkElement} el  */
             a: (el) => {
-                const href = el.getAttribute("href") || el.href || "#";
-                el.href = href;
-                let link = fetchWords(3).replace(/\s/g,'')
-                console.log(link);
-
-                return el.innerHTML = `www.${link}.com`;
+              el.href = el.getAttribute("href") || el.href || "#"
+              return el.innerHTML = `www.${fetchWords(3).replace(/\s/g,'')}.com`
             },
             /** @param {HTMLImageElement} el  */
             img: (el) => {
@@ -170,11 +170,7 @@ var fixie = (function () {
                     // const title = el.getAttribute("title") || "";
                     el.src = imagePlaceHolder.replace("${w}", `${width}`).replace("${h}", `${height}`);
                     el.setAttribute("fixie-temp-img", 'true');
-                    console.log({
-                      placeHolder: imagePlaceHolder,
-                      width: width,
-                      height: height
-                    });
+
                 }
             },
             ol: fetchList,
@@ -234,6 +230,7 @@ var fixie = (function () {
         /** @param {Array<String>} dic array of sentences */
         setWordLibrary(dic) {
             dictionary = dic;
+            words = generateWords(dictionary);
             return this;
         }
     };
