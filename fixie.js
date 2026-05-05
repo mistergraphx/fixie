@@ -17,7 +17,7 @@ var fixie = (function () {
         "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
         "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
         "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    ]
+    ];
     /** @type {Array<String>} */
     let words = generateWords(dictionary);
     /** @param {Array<String>} dic */
@@ -32,16 +32,16 @@ var fixie = (function () {
         for (let i = 0; i < num; i++) {
             output += words[Math.floor(Math.random() * words.length)] + ' ';
         }
-        return output.trim()
-    }
+        return output.trim();
+    };
 
     const fetchSentences = (num = 1)=>{
         let output = ''
         for (let i = 0; i < num; i++) {
-            output += dictionary[Math.floor(Math.random() * dictionary.length)]
+            output += dictionary[Math.floor(Math.random() * dictionary.length)];
         }
-        return formater(output)
-    }
+        return formater(output);
+    };
     const fetchPhrase = () => `${capitalize(fetchWords(constrain(3,5)))}.`;
     // const fetchSentences = () => fetch(4, 9, fetchWords) + ".";
     const fetchParagraph = () => fetch(1, 1, fetchSentences);
@@ -69,12 +69,12 @@ var fixie = (function () {
      * @param   {Number}    max   maximum value
      * @param   {function():string}  func  a text fragment generator function
      * @param   {String}    join  separator for array.join
-     * @return  {String}            random number between min and max
+     * @return  {String}            the generated string
      */
     const fetch = (min, max, func, join = " ") => {
-        const length = constrain(min, max)
-        return Array.from({ length }, func).join(join)
-    };
+        const length = constrain(min, max);
+        return Array.from({ length }, func).join(join);
+    };;
     /**
      * surround a text fragment with a tag
      * with min/max
@@ -86,9 +86,9 @@ var fixie = (function () {
      * @return  {String}   html element with text fragment
      */
     const surroundWithTag = (min, max, func, tagName) => {
-        const content = fetch(min, max, func, `</${tagName}><${tagName}>`)
-        return `<${tagName}>${content}</${tagName}>`
-    };
+        const content = fetch(min, max, func, `</${tagName}><${tagName}>`);
+        return `<${tagName}>${content}</${tagName}>`;
+    };;
     /**
      * Transform the first character to uppercase and lower the rest
      * @param {string} string   a text fragment
@@ -101,17 +101,17 @@ var fixie = (function () {
      * @return  {string}  return a formatted string
      */
     const formater = (string)=>{
-        string = string.replace(/(?:\s?)([!\?\:])/gm, '\u202F$1')   // add narow non breaking  space before ':'
-        string = string.replace(/(\.{1}[^\s])/gm, '. ')     // add a space after '.' if not present
-        string = string.replace(/(\.{3})/gm, '…')           // change three dots to unicode character
-        string = string.replace(/[']/gm, '’')               // Change to simple quote
-        string = string.replace(/( {2,})/gm, ' ')           // remove multiple spaces
-        return string
-    }
+        string = string.replace(/(?:\s?)([!\?\:])/gm, '\u202F$1');   // add narrow non-breaking space before ':'
+        string = string.replace(/(\.{1}[^\s])/gm, '. ');     // add a space after '.' if not present
+        string = string.replace(/(\.{3})/gm, '…');           // change three dots to unicode character
+        string = string.replace(/[']/gm, '’');               // Change to simple quote
+        string = string.replace(/( {2,})/gm, ' ');           // remove multiple spaces
+        return string;
+    };
     /**
      * handle all DOM elements
      *
-     * @param   {HTMLElement}  element  a dom elemen
+     * @param   {HTMLElement}  element  a DOM element
      *
      */
     function fixie_handler(element) {
@@ -119,46 +119,49 @@ var fixie = (function () {
             Array.from(element.children).forEach(fixie_handler);
             return false;
         }
-        /** @type {Object} */
+        /**
+         * @typedef {(el: HTMLElement) => string|void} HandlerFn
+         * @type {Record<string, HandlerFn>}
+         */
         const handlers = {
-            b: fetchWords,
-            em: fetchWords,
-            strong: fetchWords,
-            button: fetchWords,
-            label: fetchWords,
-            th: fetchWords,
-            td: fetchWords,
-            title: fetchWords,
-            tr: fetchWords,
-            header: fetchPhrase,
-            cite: fetchPhrase,
-            caption: fetchPhrase,
-            mark: fetchPhrase,
-            q: fetchPhrase,
-            s: fetchPhrase,
-            u: fetchPhrase,
-            small: fetchPhrase,
-            code: fetchPhrase,
-            pre: fetchPhrase,
-            li: fetchPhrase,
-            dt: fetchPhrase,
-            h1: fetchPhrase,
-            h2: fetchPhrase,
-            h3: fetchPhrase,
-            h4: fetchPhrase,
-            h5: fetchPhrase,
-            h6: fetchPhrase,
-            footer: fetchParagraph,
-            aside: fetchParagraph,
-            summary: fetchParagraph,
-            blockquote: fetchParagraph,
-            p: fetchParagraph,
-            article: fetchParagraphs,
-            section: fetchParagraphs,
+            b: () => fetchWords(),
+            em: () => fetchWords(),
+            strong: () => fetchWords(),
+            button: () => fetchWords(),
+            label: () => fetchWords(),
+            th: () => fetchWords(),
+            td: () => fetchWords(),
+            title: () => fetchWords(),
+            tr: () => fetchWords(),
+            header: () => fetchPhrase(),
+            cite: () => fetchPhrase(),
+            caption: () => fetchPhrase(),
+            mark: () => fetchPhrase(),
+            q: () => fetchPhrase(),
+            s: () => fetchPhrase(),
+            u: () => fetchPhrase(),
+            small: () => fetchPhrase(),
+            code: () => fetchPhrase(),
+            pre: () => fetchPhrase(),
+            li: () => fetchPhrase(),
+            dt: () => fetchPhrase(),
+            h1: () => fetchPhrase(),
+            h2: () => fetchPhrase(),
+            h3: () => fetchPhrase(),
+            h4: () => fetchPhrase(),
+            h5: () => fetchPhrase(),
+            h6: () => fetchPhrase(),
+            footer: () => fetchParagraph(),
+            aside: () => fetchParagraph(),
+            summary: () => fetchParagraph(),
+            blockquote: () => fetchParagraph(),
+            p: () => fetchParagraph(),
+            article: () => fetchParagraphs(),
+            section: () => fetchParagraphs(),
             /** @param {HTMLLinkElement} el  */
             a: (el) => {
-              el.href = el.getAttribute("href") || el.href || "#"
-              return el.innerHTML = `www.${fetchWords(3).replace(/\s/g,'')}.com`
+              el.href = el.getAttribute("href") || el.href || "#";
+              return `www.${fetchWords(3).replace(/\s/g,'')}.com`;
             },
             /** @param {HTMLImageElement} el  */
             img: (el) => {
@@ -173,28 +176,31 @@ var fixie = (function () {
 
                 }
             },
-            ol: fetchList,
-            ul: fetchList,
-            dl: fetchDefinitionList,
-            hr: ()=> '',
-            div: ()=>'',
-            input: ()=>'',
+            ol: () => fetchList(),
+            ul: () => fetchList(),
+            dl: () => fetchDefinitionList(),
+            hr: () => '',
+            div: () => '',
+            input: () => '',
             /** @param {HTMLSpanElement} el  */
             span: (el) => {
-                return  (!/(icn+|icon+)/.test(el.className))? fetchSentences() : ''
+                return  (!/(icn+|icon+)/.test(el.className))? fetchSentences() : '';
             },
             /** @param {HTMLElement} el  */
             i: (el) => {
-                return  (!/(icn+|icon+)/.test(el.className))? fetchSentences() : ''
+              return  (!/(icn+|icon+)/.test(el.className))? fetchSentences() : '';
             }
         };
-        const handler = handlers[element.nodeName.toLowerCase()] || fetchSentences
-        element.innerHTML = handler(element)
+        const handler = handlers[element.nodeName.toLowerCase()] || (() => fetchSentences());
+        const result = handler(element) || '';
+        if (typeof result !== "undefined") {
+          element.innerHTML = result;
+        }
     }
     /** @param {NodeListOf<HTMLElement>} elements */
     function fixie_handle_elements(elements) {
         for (const element of elements) {
-          fixie_handler(element)
+          fixie_handler(element);
         }
     }
     /** @param {string} cssSelectors   */
@@ -217,12 +223,12 @@ var fixie = (function () {
             }
             fixie_handle_elements(document.querySelectorAll(".fixie"));
         },
-        /** @param {String} pl placeholder service url */
-        setImagePlaceholder(pl) {
-            imagePlaceHolder = pl;
+        /** @param {String} placeholderTemplate placeholder service template url use template literals ${w},${h},${t} accordingly to replcae width,height and text  */
+        setImagePlaceholder(placeholderTemplate) {
+            imagePlaceHolder = placeholderTemplate;
             return this;
         },
-        /** @param {Array<String>|string} sl placeholder service url */
+        /** @param {Array<String>|string} sl a selectors list (array or string accepted) */
         setSelector(sl) {
             selector = Array.isArray(sl) ? sl.join(",") : sl;
             return this;
