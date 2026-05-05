@@ -4,13 +4,8 @@
  *
  * v1.2.0
  *
- * forked from https://github.com/ryhan/fixie
- * original Author Ryhan Hassan
- * ryhanh@me.com
- *
- * Automagically adds filler content
+ * add filler content to empty DOM nodes
  * whenever an element has class="fixie".
- * Hope you find it useful :)
  */
 var fixie = (function () {
     /** @type {String} */
@@ -26,8 +21,6 @@ var fixie = (function () {
 
     let words = dictionary.join().replace(/[^\w]/g,' ').trim().replace(/\s\s+/g,' ').split(' ')
 
-    // let fixie_wordlibrary = ["8-bit", "ethical", "reprehenderit", "delectus", "non", "latte", "fixie", "mollit", "authentic", "1982", "moon", "helvetica", "dreamcatcher", "esse", "vinyl", "nulla", "Carles", "bushwick", "bronson", "clothesline", "fin", "frado", "jug", "kale", "organic", "local", "fresh", "tassel", "liberal", "art", "the", "of", "bennie", "chowder", "daisy", "gluten", "hog", "capitalism", "is", "vegan", "ut", "farm-to-table", "etsy", "incididunt", "sunt", "twee", "yr", "before", "gentrify", "whatever", "wes", "Anderson", "chillwave", "dubstep", "sriracha", "voluptate", "pour-over", "esse", "trust-fund", "Pinterest", "Instagram", "DSLR", "vintage", "dumpster", "totally", "selvage", "gluten-free", "brooklyn", "placeat", "delectus", "sint", "magna", "brony", "pony", "party", "beer", "shot", "narwhal", "salvia", "letterpress", "art", "party", "street-art", "seitan", "anime", "wayfarers", "non-ethical", "viral", "iphone", "anim", "polaroid", "gastropub", "city", "classy", "original", "brew"];
-
     let imagePlaceHolder = "https://fakeimg.pl/${w}x${h}/?text=${text}";
 
     const fetchWords = (num = 5)=>{
@@ -38,16 +31,16 @@ var fixie = (function () {
         return output.trim()
     }
 
-    const fetchSentences = (num = 5)=>{
+    const fetchSentences = (num = 1)=>{
         let output = ''
         for (let i = 0; i < num; i++) {
             output += dictionary[Math.floor(Math.random() * dictionary.length)];
         }
-        return output
+        return formater(output)
     }
     const fetchPhrase = () => `${capitalize(fetch(3, 5, fetchWords))}.`;
     // const fetchSentences = () => fetch(4, 9, fetchWords) + ".";
-    const fetchParagraph = () => fetch(3, 7, fetchSentences);
+    const fetchParagraph = () => fetch(1, 1, fetchSentences);
     const fetchParagraphs = () => surroundWithTag(3, 7, fetchParagraph, "p");
     const fetchList = () => surroundWithTag(4, 8, fetchPhrase, "li");
     const fetchDefinitionList = () => {
@@ -104,7 +97,7 @@ var fixie = (function () {
      * @return  {string}  return a formatted string
      */
     const formater = (string)=>{
-        string = string.replace(/(?:\s?)([!\?\:])/gm, '\u202F$1')   // add narow non breaking space before ':'
+        string = string.replace(/(?:\s?)([!\?\:])/gm, '\u202F$1')   // add narow non breaking  space before ':'
         string = string.replace(/(\.{1}[^\s])/gm, '. ')     // add a space after '.' if not present
         string = string.replace(/(\.{3})/gm, '…')           // change three dots to unicode character
         string = string.replace(/[']/gm, '’')               // Change to simple quote
@@ -174,9 +167,9 @@ var fixie = (function () {
                 if (!src || temp) {
                     const width = Number(el.getAttribute("width")) || el.width || 250;
                     const height = Number(el.getAttribute("height")) || el.height || 100;
-                    const title = el.getAttribute("title") || "";
+                    // const title = el.getAttribute("title") || "";
                     el.src = imagePlaceHolder.replace("${w}", `${width}`).replace("${h}", `${height}`);
-                    el.setAttribute("fixie-temp-img", true);
+                    el.setAttribute("fixie-temp-img", 'true');
                     console.log({
                       placeHolder: imagePlaceHolder,
                       width: width,
@@ -211,6 +204,7 @@ var fixie = (function () {
     /** @param {string} cssSelectors   */
     function init_str(cssSelectors) {
         try {
+            /** @type {NodeListOf<HTMLElement>}*/
             const elements = document.querySelectorAll(cssSelectors);
             fixie_handle_elements(elements);
             return true;
