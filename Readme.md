@@ -19,7 +19,7 @@ Unfortunately, adding lots of filler content involves lots of copy-pasting and m
 
 ### Step 1 - Add fixie.js
 
-Add `<script type="text/javascript" src="fixie.js"></script>` to the bottom of your html document, right before your closing `</body>` tag.
+Add `<script src="fixie.js"></script>` to the bottom of your html document, right before your closing `</body>` tag.
 
 ### Step 2 - Add the `fixie` class.
 
@@ -65,43 +65,29 @@ Fixie inserts the right type of content based on the tag name. Here are some maj
 
 ### Change the default dictionary
 
-```javascript
-var words= ["Je", "france", "sport", "aurait mieux fait", "super", "voir", "plus", "Mister-graphX"];
-fixie.setWordLibrary(words).init();
-```
 
-### Change the default image placeholder service
-
-<http://tinyfinch.com/top-12-image-placeholder-services/>
-
-
-Use `fixie.setImagePlaceholder(source)`.
-
-
-**Lorempixel**
-
-Example http://www.lorempixel.com call
 
 ```javascript
-fixie.setImagePlaceholder('http://www.lorempixel.com/${w}/${h}/${text}').init();
+const dic = [
+  "To be, or not to be: that is the question.",
+  "Though this be madness, yet there is method in't.",
+  "The lady doth protest too much, methinks.",
+  "Brevity is the soul of wit.",
+  "There is nothing either good or bad, but thinking makes it so."
+];
+fixie.setWordLibrary(dic).init();
 ```
 
-`<img class="fixie" width="300" height="200" title="sports"/>`
-
-**Piscsum**
-
-https://picsum.photos/
+### Change image placeholder
 
 ```javascript
-fixie.setImagePlaceholder('https://picsum.photos/${w}/${h}/?${text}').init();
+fixie.setImagePlaceholder('https://fakeimg.pl/${w}x${h}/?text=${text}').init();
 ```
-`<img class="fixie" width="300" height="200" title="[ramdom|image=0|blur|gravity=east]"/>`
-
 
 ### Add class fixie to containers
 
-Fixie will act on all child elements, but will never
-overwrite content within an element.
+**Fixie will act on all child elements, but will never
+overwrite content within an element.**
 
 Consider the following example:
 
@@ -112,11 +98,6 @@ Consider the following example:
 ```
 Fixie will preserve the "Hello" text, but will
 automatically add content to the link.
-
-### Fixie for Rails
-
-[fixie-rails](https://github.com/csexton/fixie-rails)
-
 
 ### Flagging filler content
 
