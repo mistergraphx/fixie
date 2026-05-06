@@ -10,6 +10,10 @@
 var fixie = (function () {
   /** @type {String} */
   let selector;
+
+  /** @type {String} */
+  let imagePlaceHolder= 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" fill="blue"><rect fill="var(--placeholder-bg,gray)" width="${w}" height="${h}"/><text fill="rgba(0,0,0,0.5)" font-family="sans-serif" font-size="30" dy="10.5" font-weight="bold" x="50%" y="50%" text-anchor="middle">${text}</text></svg>';
+
   /** @type {Array<string>} */
   let dictionary = [
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -25,8 +29,6 @@ var fixie = (function () {
     return dic.join().replace(/[^\w]/g, ' ').trim().replace(/\s\s+/g, ' ').split(' ');
   }
 
-  let imagePlaceHolder = "https://fakeimg.pl/${w}x${h}/?text=${text}";
-
   const fetchWords = (num = 5) => {
     let output = ''
     for (let i = 0; i < num; i++) {
@@ -35,7 +37,7 @@ var fixie = (function () {
     return output.trim();
   };
 
-  const fetchSentences = (num = 1) => {
+  const fetchSentences = (num = 5) => {
     let output = ''
     for (let i = 0; i < num; i++) {
       output += dictionary[Math.floor(Math.random() * dictionary.length)];
@@ -43,7 +45,7 @@ var fixie = (function () {
     return formater(output);
   };
   const fetchPhrase = () => `${capitalize(fetchWords(constrain(3,5)))}.`;
-  const fetchParagraph = () => fetch(1, 1, fetchSentences);
+  const fetchParagraph = () => fetchSentences(constrain(3,6));
   const fetchParagraphs = () => surroundWithTag(3, 7, fetchParagraph, "p");
   const fetchList = () => surroundWithTag(4, 8, fetchPhrase, "li");
   const fetchDefinitionList = () => {
@@ -75,7 +77,7 @@ var fixie = (function () {
     return Array.from({
       length
     }, func).join(join);
-  };;
+  };
   /**
    * surround a text fragment with a tag
    * with min/max
@@ -89,7 +91,7 @@ var fixie = (function () {
   const surroundWithTag = (min, max, func, tagName) => {
     const content = fetch(min, max, func, `</${tagName}><${tagName}>`);
     return `<${tagName}>${content}</${tagName}>`;
-  };;
+  };
   /**
    * Transform the first character to uppercase and lower the rest
    * @param {string} string   a text fragment
@@ -103,7 +105,7 @@ var fixie = (function () {
    */
   const formater = (string) => {
     string = string.replace(/(?:\s?)([!\?\:])/gm, '\u202F$1'); // add narrow non-breaking space before ':'
-    string = string.replace(/(\.{1}[^\s])/gm, '. '); // add a space after '.' if not present
+    string = string.replace(/(\.{1})([^\s])/gm, '$1 $2'); // add a space after '.' if not present
     string = string.replace(/(\.{3})/gm, '…'); // change three dots to unicode character
     string = string.replace(/[']/gm, '’'); // Change to simple quote
     string = string.replace(/( {2,})/gm, ' '); // remove multiple spaces
@@ -171,8 +173,10 @@ var fixie = (function () {
         if (!src || temp) {
           const width = Number(el.getAttribute("width")) || el.width || 250;
           const height = Number(el.getAttribute("height")) || el.height || 100;
-          // const title = el.getAttribute("title") || "";
-          el.src = imagePlaceHolder.replace("${w}", `${width}`).replace("${h}", `${height}`);
+          const text = el.getAttribute("title") || `${width}x${height}`;
+          el.src = imagePlaceHolder.replace(/(\$\{w\})/g, `${width}`)
+                                    .replace(/(\$\{h\})/g, `${height}`)
+                                    .replace(/(\$\{text\})/g, `${text}`);
           el.setAttribute("fixie-temp-img", 'true');
         }
       },
@@ -223,12 +227,13 @@ var fixie = (function () {
       }
       fixie_handle_elements(document.querySelectorAll(".fixie"));
     },
-    /** Custom placeholder service
-     * use template literals ${w},${h},${text} accordingly to replcae width,height and text
+    /** Custom placeholder
+     * 
+     * use template literals ${w},${h},${text} accordingly to replace width,height and text
      * eg: https://fakeimg.pl/${w}x${h}/?text=${text}
-     * 
-     * @param {String} placeholderTemplate placeholder service template url
-     * 
+     *
+     * @param {String} placeholderTemplate placeholder template
+     *
      **/
     setImagePlaceholder(placeholderTemplate) {
       imagePlaceHolder = placeholderTemplate;
