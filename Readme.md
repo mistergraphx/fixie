@@ -1,121 +1,103 @@
-# Fixie.js
+# Fixie
 
+Fill empty HTML elements with realistic placeholder content, based on their tag: headings get a short phrase, paragraphs get sentences, lists get items, images get a sized placeholder. Write your markup, call `fixie.init()`, and see your layout with content in it.
 
-*This repository is a fork of https://github.com/ryhan/fixie, adding some features likes personal dictionary for filler contents, improved ignore rules, and updated documentation.*
+No dependencies, one file, plain JavaScript.
 
-Fixie is an open source tool that that automatically adds filler content to HTML documents. It's very simple, and we welcome contributions.
+> Based on [fixie](https://github.com/ryhan/fixie) by Ryhan Hassan (2012), rewritten and maintained since. This version adds a custom dictionary, custom image placeholders, CSS selectors, typographic rules and a modern JavaScript codebase.
 
-To learn more, check out the sample.html.
+## Quick start
 
-### Why use Fixie?
+```html
+<article class="fixie">
+  <h1></h1>
+  <p></p>
+  <img width="800" height="450" alt="">
+  <ul></ul>
+</article>
 
-When designing and developing websites, it's often useful to add lorem ipsum text to see what your page will look like without worrying about your final content.
-
-Unfortunately, adding lots of filler content involves lots of copy-pasting and manual editing, and also makes your HTML unwieldy.
-
-**Fixie.js** makes filler content succinct, making it faster and easier to test out your designs.
-
-## Instructions
-
-### Step 1 - Add fixie.js
-
-Add `<script src="fixie.js"></script>` to the bottom of your html document, right before your closing `</body>` tag.
-
-### Step 2 - Add the `fixie` class.
-
-Wherever you need filler content, set `class="fixie"`.
-
-For example, if you wanted one filler paragraph, you could use
-`<p class="fixie"></p>`
-
-### Step 2 - Alternatively use `fixie.init`
-
-Select where you want filler content using CSS selectors.
-
-Call
-```
-fixie.init([".array", "#of > .selectors", ".that", ".should", "#be > .populated", ".with", ".lorem"])
-```
-or
-```
-fixie.init(".string, #of > .comma, .separated, .selectors, .that, .should, #be > .populated, .with, .lorem")
-```
-in the JavaScript console or within a `<script>` tag.
-
-You can call Fixie on all empty elements on a page by calling:
-```
-fixie.init(':empty')
+<script src="fixie.js"></script>
+<script>
+  fixie.init();
+</script>
 ```
 
-## Supported Elements
+Every empty element inside `.fixie` gets content. Elements that already have content are left untouched, but their empty children are filled:
 
-Fixie inserts the right type of content based on the tag name. Here are some major types you should be aware of:
+```html
+<p class="fixie">Hello <a></a></p>
+<!-- "Hello" stays, the link gets a fake URL as its text -->
+```
 
-- `<h1 class="fixie"></h1>` - Adds a few words of text. Same goes for `h2 - h6`
-- `<p class="fixie"></p>` - Adds a paragraph of text.
-- `<article class="fixie"></article>` - Adds several paragraphs of text.
-- `<section class="fixie"></section>` - Adds several paragraphs of text.
-- `<img class="fixie"></img>` - Adds an image which displays the width and height of the image.
-- `<a class="fixie"></a>` - Adds a randomly named link.
+Open `sample.html` to see it in action.
 
-*fixie ignore `<i|span class="[icn|icon]"></i|span>` matching any class begining or containing the `icn` or `icon` words.*
-*ignore empty div*
+## What each element gets
 
-## Tips
+| Elements | Content |
+|---|---|
+| `h1`–`h6`, `li`, `dt`, `header`, `cite`, `caption`, `mark`, `q`, `small`, `code`, `pre` | A short phrase |
+| `b`, `strong`, `em`, `button`, `label`, `th`, `td`, `title` | A few words |
+| `p`, `blockquote`, `aside`, `footer`, `summary` | A paragraph |
+| `article`, `section` | Several paragraphs |
+| `ul`, `ol` | 4 to 8 list items |
+| `dl` | 3 to 5 term / definition pairs |
+| `a` | A fake domain name as text; `href="#"` if it has none |
+| `img` (without `src`) | An SVG placeholder showing its size, or its `title` |
+| `span`, `i` | Sentences, except icons (see below) |
+| `div`, `hr`, `input` | Nothing |
 
-### Change the default dictionary
+Icons are left alone: a `span` or `i` whose class contains `icn` or `icon` stays empty.
 
+## Options
 
+All setters can be chained before `init()`.
+
+### Target other elements
 
 ```javascript
-const dic = [
-  "To be, or not to be: that is the question.",
-  "Though this be madness, yet there is method in't.",
-  "The lady doth protest too much, methinks.",
-  "Brevity is the soul of wit.",
-  "There is nothing either good or bad, but thinking makes it so."
-];
-fixie.setWordLibrary(dic).init();
+fixie.setSelector('.lorem').init();
+fixie.setSelector(['.card p', '#sidebar li']).init();
+
+// every empty element on the page
+fixie.setSelector(':empty').init();
 ```
 
-### Change image placeholder
+### Use your own text
+
+Pass an array of sentences. Words for short content are picked from them too, so the language of your filler matches your project:
+
+```javascript
+fixie.setWordLibrary([
+  "To be, or not to be: that is the question.",
+  "Brevity is the soul of wit.",
+  "There is nothing either good or bad, but thinking makes it so."
+]).init();
+```
+
+### Change the image placeholder
+
+The default is an inline SVG, so it works offline. Its background follows the `--placeholder-bg` CSS custom property. To use an image service instead, pass a URL template with `${w}`, `${h}` and `${text}`:
 
 ```javascript
 fixie.setImagePlaceholder('https://fakeimg.pl/${w}x${h}/?text=${text}').init();
 ```
 
-### Add class fixie to containers
+Width and height come from the `width` and `height` attributes (250×100 by default).
 
-**Fixie will act on all child elements, but will never
-overwrite content within an element.**
+## Typography
 
-Consider the following example:
+Generated text follows a few typographic rules: a narrow no-break space before `!`, `?` and `:` (French style), a space after each full stop, `…` instead of three dots, and typographic apostrophes.
 
-```xml
-<div class="fixie">
-<p>Hello <a></a></p>
-</div>
+## Tip: spot leftover filler
+
+Before going live, highlight what is still placeholder content:
+
+```css
+.fixie { outline: 4px solid red; }
 ```
-Fixie will preserve the "Hello" text, but will
-automatically add content to the link.
 
-### Flagging filler content
+## Credits and license
 
-When you start adding real copy to your page, try adding the following CSS to your stylesheet:
+Fixie was created by [Ryhan Hassan](https://github.com/ryhan/fixie) in 2012, with contributions from Andreas Köberle, Zach Ahn, Brandon Kase and others. This version is maintained by [Arnaud Bérard](https://github.com/mistergraphx).
 
-`.fixie{ border:4px solid red; }`
-
-This CSS will highlight all of your dummy content, making it easier to make sure you didn't miss anything.
-
-
-## License
-
-The MIT License
-
-Copyright (c) 2012 Ryhan Hassan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+MIT License, see [LICENSE](LICENSE).
