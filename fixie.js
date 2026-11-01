@@ -26,7 +26,9 @@ var fixie = (function () {
   let words = generateWords(dictionary);
   /** @param {Array<String>} dic */
   function generateWords(dic) {
-    return dic.join().replace(/[^\w]/g, ' ').trim().replace(/\s\s+/g, ' ').split(' ');
+    // \p{L} and \p{N} match letters and digits in any script, so accented words
+    // ("été", "très") stay whole; \w would only match ASCII and split them
+    return dic.join(' ').replace(/[^\p{L}\p{N}]/gu, ' ').trim().replace(/\s\s+/g, ' ').split(' ');
   }
 
   const fetchWords = (num = 5) => {
@@ -74,9 +76,9 @@ var fixie = (function () {
    */
   const fetch = (min, max, func, join = " ") => {
     const length = constrain(min, max);
-    return Array.from({
-      length
-    }, func).join(join);
+    // call func without arguments: Array.from would pass (element, index),
+    // and the index would land in fetchPhrase's `max` parameter
+    return Array.from({ length }, () => func()).join(join);
   };
   /**
    * surround a text fragment with a tag
