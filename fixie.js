@@ -44,7 +44,7 @@ var fixie = (function () {
     }
     return formater(output);
   };
-  const fetchPhrase = () => `${capitalize(fetchWords(constrain(3,5)))}.`;
+  const fetchPhrase = (min=3,max=5) => `${capitalize(fetchWords(constrain(min,max)))}.`;
   const fetchParagraph = () => fetchSentences(constrain(3,6));
   const fetchParagraphs = () => surroundWithTag(3, 7, fetchParagraph, "p");
   const fetchList = () => surroundWithTag(4, 8, fetchPhrase, "li");
